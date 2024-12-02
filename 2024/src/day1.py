@@ -50,8 +50,8 @@ def main(path_=None):
 
 
 if __name__ == "__main__":
-    datapath = "DATA/"
-    filename = "day1.input"
+    datapath = "../DATA/"
+    filename = "day1.txt"
 
     path = os.path.join(datapath, filename)
     main(path)
