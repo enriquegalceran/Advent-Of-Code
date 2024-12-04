@@ -35,7 +35,6 @@ def main(path_=None, verbose=1):
     print(f"Solution Day 2, Part 2: {part_2_sol}")
 
 
-
 def get_power(data_, verbose=1):
     accum = 0
     for i in range(len(data_)):
