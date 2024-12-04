@@ -79,7 +79,7 @@ def get_calibration(data_):
 
 if __name__ == "__main__":
     datapath = "../DATA/"
-    filename = "day1.txt"
+    filename = "day1_2023.txt"
 
     path = os.path.join(datapath, filename)
     main(path)

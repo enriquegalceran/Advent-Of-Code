@@ -89,7 +89,7 @@ def is_valid(game_, cubes_):
 
 if __name__ == "__main__":
     datapath = "../DATA/"
-    filename = "day2.txt"
+    filename = "day2_2023.txt"
 
     path = os.path.join(datapath, filename)
     main(path)
