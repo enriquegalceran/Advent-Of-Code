@@ -32,6 +32,26 @@ def main(path_=None, verbose=1):
     total = rows + cols + diag_pos + diag_neg
     print(f"Solution Day 4, Part 1: {total}")
 
+    # ------------------------------------------------------------------------------------------------------------------
+    # Part 2
+    # Part 2 test solution = 9
+
+    crosses = find_crosses(data)
+    print(f"Solution Day 4, Part 2: {crosses}")
+
+
+def find_crosses(data_):
+    nrows = len(data_)
+    ncols = len(data_[0])
+    accum = 0
+    for r in range(nrows - 2):
+        for c in range(ncols - 2):
+            cross_pos = "".join([data_[r+_][c+_] for _ in range(3)])
+            cross_neg = "".join([data_[r+2-_][c+_] for _ in range(3)])
+            if cross_pos in ["MAS", "SAM"] and cross_neg in ["MAS", "SAM"]:
+                accum += 1
+    return accum
+
 
 def find_diagonal_pos(data_):
     nrows = len(data_)
