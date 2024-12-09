@@ -49,10 +49,9 @@ def main(path_=None, verbose=1):
         3: "<",
     }
     map_forest, guard_coordinates, direction = create_map(data, dir_dict)
-    guard_in_map = True
 
-    distinct_squares, _ = find_way_through_forest(dir_movement, dir_sign, direction, guard_coordinates, guard_in_map,
-                                                  map_forest, verbose)
+    distinct_squares, map_passed, _ = find_way_through_forest(dir_movement, dir_sign, direction, guard_coordinates,
+                                                              map_forest, verbose)
 
     print(f"Solution day 6 - Part 1: {distinct_squares}")
 
@@ -64,31 +63,35 @@ def main(path_=None, verbose=1):
 
     # Create Trees
     accum = 0
+    tested = 0
+    draw_char = len(str(distinct_squares))
     list_obstacles = []
     for i in range(map_forest.shape[0]):
         for j in range(map_forest.shape[1]):
-            print(f"{i:3}/{map_forest.shape[0]} - {j:3}/{map_forest.shape[1]} - {accum}/{i*map_forest.shape[0]+j}",
-                  end="\r", flush=True)
-            if map_forest_start[i, j] != -2:
+            if not map_passed[i, j]:
                 continue
+            print(f"{accum:{draw_char}}/{tested:{draw_char}}/{distinct_squares} - ({i:3},{j:3})",
+                  end="\r", flush=True)
             map_copy = map_forest_start.copy()
             map_copy[i, j] = -1
-            _, loop = find_way_through_forest(dir_movement, dir_sign, direction_start, guard_coordinates_start, True,
-                                              map_copy, 0, only_draw_loop=True, obstacle=(i, j))
+            _, _, loop = find_way_through_forest(dir_movement, dir_sign, direction_start, guard_coordinates_start,
+                                                 map_copy, 1, only_draw_loop=True, obstacle=(i, j))
             if loop:
                 accum += 1
                 list_obstacles.append((i, j))
-
+            tested += 1
+    print(f"{accum:{draw_char}}/{tested:{draw_char}}/{distinct_squares} - ({i:3},{j:3})")
     print(list_obstacles)
     print(f"Solution day 6 - Part 2: {accum}")
 
 
-def find_way_through_forest(dir_movement, dir_sign, direction, guard_coordinates_, guard_in_map, map_forest, verbose,
+def find_way_through_forest(dir_movement, dir_sign, direction, guard_coordinates_, map_forest, verbose,
                             only_draw_loop=False, obstacle=None):
     max_steps = 10000
     steps = 0
     already_passed = [["" for i in range(map_forest.shape[1])] for j in range(map_forest.shape[0])]
     loop = False
+    guard_in_map = True
     while guard_in_map and steps < max_steps:
         new_coords = (
             guard_coordinates_[0] + dir_movement[direction][0], guard_coordinates_[1] + dir_movement[direction][1])
@@ -118,7 +121,9 @@ def find_way_through_forest(dir_movement, dir_sign, direction, guard_coordinates
             map_forest[obstacle[0], obstacle[1]] = -4
         print_map(map_forest, direction, dir_sign)
         print(map_forest)
-    return distinct_squares, loop
+    map_passed = map_forest >= 0
+    map_passed[map_forest == -3] = True
+    return distinct_squares, map_passed, loop
 
 
 def print_map(map_forest, direction, dir_sign):
