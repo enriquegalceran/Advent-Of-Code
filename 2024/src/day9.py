@@ -36,21 +36,52 @@ def main(path_=None, verbose=1):
     # Part 2:
     # Part 2: solution test: 2858
 
+    expanded_file_2 = expand_file(data)
+
+    list_of_cases = defragment_without_splitting(expanded_file_2, verbose)
+    if verbose > 0:
+        print("Defragmented without splitting:")
+        print_string(list_of_cases)
+
+    output2 = checksum(list_of_cases)
+
+    print(f"Solution Day 9 - Part 2: {output2}")
 
 
+def defragment_without_splitting(input_list, verbose):
+    bit_str = get_bit_str(input_list)
+    backtrack = -1
+    while True:
+        if input_list[backtrack] != -1:
+            id_to_search = input_list[backtrack]
+            length = 1
+            while input_list[backtrack - length] == id_to_search:
+                length += 1
+            first_empty = find_empty_space(bit_str[:backtrack], length)
+            if first_empty is not None:
+                input_list[first_empty.start():first_empty.end()] = input_list[(len(bit_str) + backtrack - length + 1): (
+                            len(bit_str) + backtrack + 1)]
+                input_list[(len(bit_str) + backtrack - length + 1): (len(bit_str) + backtrack + 1)] = [-1] * length
+                bit_str = get_bit_str(input_list)
+            if verbose > 1:
+                print_string(input_list)
+            backtrack -= length
+        else:
+            backtrack -= 1
+        if re.search(r"1", bit_str[:backtrack]) is None:
+            break
+    return input_list
 
 
+def get_bit_str(list_data):
+    a = ["1" if _ == -1 else "0" for _ in list_data]
+    return "".join(a)
 
 
-
-
-
-
-
-
-
-
-    print("here")
+def find_empty_space(bit_str, length):
+    # Only the first iteration:
+    match = re.search("1" * length, bit_str)
+    return match
 
 
 def print_string(string, spacing=None):
@@ -61,7 +92,7 @@ def print_string(string, spacing=None):
         else:
             spacing = False
     k = [str(_) for _ in string]
-    k = ["_" * lmax + spacing*" " if _ == "-1" else " " * (lmax - len(_)) + _ + spacing * " " for _ in k]
+    k = ["_" * lmax + spacing*" " if int(_) < 0 else " " * (lmax - len(_)) + _ + spacing * " " for _ in k]
     print("".join(k))
 
 
