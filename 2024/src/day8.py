@@ -121,8 +121,9 @@ def get_coordinates_from_map(data, list_antenna_types, mapshape):
 def print_map(map_data):
     map2str = {-1: "_", -2: "#"}
     forest_print = []
+    l_max_data = len(str(map_data.max()))
     for i in range(map_data.shape[0]):
-        tmp = [map2str[_] if _ < 0 else str(_) for _ in map_data[i]]
+        tmp = [map2str[_]*l_max_data + " " if _ < 0 else f"{_:{l_max_data}} " for _ in map_data[i]]
         forest_print.append("".join(tmp))
     print("\n".join(forest_print))
 
