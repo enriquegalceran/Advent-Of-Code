@@ -59,8 +59,8 @@ def defragment_without_splitting(input_list, verbose):
                 length += 1
             first_empty = find_empty_space(bit_str[:backtrack], length)
             if first_empty is not None:
-                input_list[first_empty.start():first_empty.end()] = input_list[(len(bit_str) + backtrack - length + 1): (
-                            len(bit_str) + backtrack + 1)]
+                input_list[first_empty.start():first_empty.end()] = input_list[(len(bit_str) + backtrack - length + 1):
+                                                                               (len(bit_str) + backtrack + 1)]
                 input_list[(len(bit_str) + backtrack - length + 1): (len(bit_str) + backtrack + 1)] = [-1] * length
                 bit_str = get_bit_str(input_list)
             if verbose > 1:
