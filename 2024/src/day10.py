@@ -1,5 +1,4 @@
 import os
-import re
 import numpy as np
 
 
@@ -31,30 +30,54 @@ def main(path_=None, verbose=1):
 
     which_tops_are_reachable = create_empty_list(data)
 
-    measure_accessible_tops(coords_heads, coords_tops, data, which_tops_are_reachable)
+    measure_accessible_tops(coords_heads, coords_tops, data, which_tops_are_reachable, repeats=False)
     if verbose > 1:
         print(which_tops_are_reachable)
 
-    n_accessible, solution_1 = get_accesible_tops_for_heads(data, trailheads, which_tops_are_reachable)
+    n_accessible, trailheads_1, solution_1 = get_accesible_tops_for_heads(data, trailheads, which_tops_are_reachable)
 
     if verbose > 1:
         print_accessible = []
         for i in range(n_accessible.shape[0]):
             row = n_accessible[i, :]
-            print_accessible.append("".join([str(data[i,j]) if row[j] > 0 else "_" for j in range(row.size)]))
+            print_accessible.append("".join([str(data[i, j]) if row[j] > 0 else "_" for j in range(row.size)]))
         print("\n".join(print_accessible))
 
     print(f"Solution Day 10 - Part 1: {solution_1}")
 
     # --------------------------------------------------------------------------------------------------------
     # Part 2
+    if path is None:
+        data = [
+            "012345",
+            "123456",
+            "234567",
+            "345678",
+            "426789",
+            "567892",
+        ]
+        # Solution test1 = 227
+        data = [
+            "89010123",
+            "78121874",
+            "87430965",
+            "96549874",
+            "45678903",
+            "32019012",
+            "01329801",
+            "10456732",
+        ]
+        # Solution test2 = 20, 24, 10, 4, 1, 4, 5, 8, and 5. -> 81
 
+    trailheads = data == 0
+    coords_heads = []
+    coords_tops = []
 
+    which_tops_are_reachable = create_empty_list(data)
+    measure_accessible_tops(coords_heads, coords_tops, data, which_tops_are_reachable, repeats=True)
+    n_accessible2, trail_heads_2, solution_2 = get_accesible_tops_for_heads(data, trailheads, which_tops_are_reachable)
 
-
-
-    print("here")
-
+    print(f"Solution Day 10 - Part 2: {solution_2}")
 
 
 def get_accesible_tops_for_heads(data, trailheads, which_tops_are_reachable):
@@ -67,10 +90,10 @@ def get_accesible_tops_for_heads(data, trailheads, which_tops_are_reachable):
             if trailheads[i, j] == 1:
                 trail_heads.append(len(which_tops_are_reachable[i][j]))
     solution_1 = sum(trail_heads)
-    return n_accessible, solution_1
+    return n_accessible, trail_heads, solution_1
 
 
-def measure_accessible_tops(coords_heads, coords_tops, data, which_tops_are_reachable):
+def measure_accessible_tops(coords_heads, coords_tops, data, which_tops_are_reachable, repeats=True):
     id_top = 0
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
@@ -93,9 +116,13 @@ def measure_accessible_tops(coords_heads, coords_tops, data, which_tops_are_reac
                 value_neighbours = [data[_] for _ in valid_neighbours]
                 for m in range(len(value_neighbours)):
                     if data[valid_neighbours[m]] == n + 1:
-                        which_tops_are_reachable[i][j] = list(set(
-                            which_tops_are_reachable[i][j] + which_tops_are_reachable[valid_neighbours[m][0]][
-                                valid_neighbours[m][1]]))
+                        if not repeats:
+                            which_tops_are_reachable[i][j] = list(set(
+                                which_tops_are_reachable[i][j] + which_tops_are_reachable[valid_neighbours[m][0]][
+                                    valid_neighbours[m][1]]))
+                        else:
+                            which_tops_are_reachable[i][j] += which_tops_are_reachable[valid_neighbours[m][0]] \
+                                                                                      [valid_neighbours[m][1]]
 
 
 def ladder_neighbours(data, coords):
