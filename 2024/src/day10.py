@@ -26,13 +26,51 @@ def main(path_=None, verbose=1):
         print(data)
 
     trailheads = data == 0
-    trailtops = data == 9
     coords_heads = []
     coords_tops = []
 
-
     which_tops_are_reachable = create_empty_list(data)
 
+    measure_accessible_tops(coords_heads, coords_tops, data, which_tops_are_reachable)
+    if verbose > 1:
+        print(which_tops_are_reachable)
+
+    n_accessible, solution_1 = get_accesible_tops_for_heads(data, trailheads, which_tops_are_reachable)
+
+    if verbose > 1:
+        print_accessible = []
+        for i in range(n_accessible.shape[0]):
+            row = n_accessible[i, :]
+            print_accessible.append("".join([str(data[i,j]) if row[j] > 0 else "_" for j in range(row.size)]))
+        print("\n".join(print_accessible))
+
+    print(f"Solution Day 10 - Part 1: {solution_1}")
+
+    # --------------------------------------------------------------------------------------------------------
+    # Part 2
+
+
+
+
+
+    print("here")
+
+
+
+def get_accesible_tops_for_heads(data, trailheads, which_tops_are_reachable):
+    # Measure how many *different* tops are reachable
+    n_accessible = np.zeros_like(data, dtype=int)
+    trail_heads = []
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            n_accessible[i, j] = len(which_tops_are_reachable[i][j])
+            if trailheads[i, j] == 1:
+                trail_heads.append(len(which_tops_are_reachable[i][j]))
+    solution_1 = sum(trail_heads)
+    return n_accessible, solution_1
+
+
+def measure_accessible_tops(coords_heads, coords_tops, data, which_tops_are_reachable):
     id_top = 0
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
@@ -42,7 +80,6 @@ def main(path_=None, verbose=1):
                 which_tops_are_reachable[i][j].append(id_top)
             elif data[i, j] == 0:
                 coords_heads.append([i, j])
-
     # Find down ladder
     for n in reversed(range(9)):
         for i in range(data.shape[0]):
@@ -56,19 +93,9 @@ def main(path_=None, verbose=1):
                 value_neighbours = [data[_] for _ in valid_neighbours]
                 for m in range(len(value_neighbours)):
                     if data[valid_neighbours[m]] == n + 1:
-                        which_tops_are_reachable[i][j] = list(set(which_tops_are_reachable[i][j] + which_tops_are_reachable[valid_neighbours[m][0]][valid_neighbours[m][1]]))
-    print(which_tops_are_reachable)
-
-    # Measure how many *different* tops are reachable
-    n_accessible = np.zeros_like(data, dtype=int)
-    trail_heads = []
-    for i in range(data.shape[0]):
-        for j in range(data.shape[1]):
-            n_accessible[i, j] = len(which_tops_are_reachable[i][j])
-            if trailheads[i, j]:
-                trail_heads.append(len(which_tops_are_reachable[i][j]))
-    solution_1 = sum(trail_heads)
-    print(f"Solution Day 10 - Part 1: {solution_1}")
+                        which_tops_are_reachable[i][j] = list(set(
+                            which_tops_are_reachable[i][j] + which_tops_are_reachable[valid_neighbours[m][0]][
+                                valid_neighbours[m][1]]))
 
 
 def ladder_neighbours(data, coords):
