@@ -67,6 +67,56 @@ def blink_cache_recursive(input_val, blinks_remaining):
         return blink_cache_recursive(input_val * 2024, blinks_remaining - 1)
 
 
+@lru_cache(maxsize=None)
+def blink_cache_recursive2(input_val, blinks_remaining):
+    """
+    Now that I learned of lru_cache, I am trying again my previous attempt
+
+    It works, but storing enormous lists slows down the code so so so much (it does not store the final length, but
+    the actual values...)
+
+    :param input_val:
+    :param blinks_remaining:
+    :return:
+    """
+    if blinks_remaining == 0:
+        return [input_val]
+
+    if input_val == 0:
+        k = [blink_cache_recursive2(1, blinks_remaining - 1)]
+        return list(flatten(k))
+    n_input = len(str(input_val))
+    if n_input % 2 == 0:
+        left = int(str(input_val)[:n_input//2])
+        right = int(str(input_val)[n_input//2:])
+        k = [blink_cache_recursive2(left, blinks_remaining - 1), blink_cache_recursive2(right, blinks_remaining - 1)]
+        return list(flatten(k))
+    else:
+        k = [blink_cache_recursive2(input_val * 2024, blinks_remaining - 1)]
+        return list(flatten(k))
+
+
+def blink_cache_wrapper2(data, blinks):
+    # For every element in the list, calculate the stones that will stay there
+    input2outputstones = []
+    for x in data:
+        input2outputstones.append(blink_cache_recursive2(x, blinks))
+    flattened_outputs = list(flatten(input2outputstones))
+    print("Solution:", flattened_outputs)
+    return sum(flattened_outputs)
+
+
+def flatten(container):
+    for i in container:
+        if isinstance(i, (list,tuple)):
+            for j in flatten(i):
+                yield j
+        else:
+            yield i
+
+
+
+
 def blink_cache_wrapper(data, blinks):
     # For every element in the list, calculate the stones that will stay there
     input2outputstones = [0] * len(data)
