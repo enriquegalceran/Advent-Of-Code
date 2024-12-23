@@ -34,7 +34,7 @@ def main(path_=None, verbose=1):
 
     sol2 = blink_cache_wrapper(data, 75)
     print(blink_cache_recursive.cache_info())
-    print(f"Solution Day 11 - Part 1: {sol2}")
+    print(f"Solution Day 11 - Part 2: {sol2}")
 
 
 @lru_cache(maxsize=None)
