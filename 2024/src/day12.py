@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from functools import lru_cache
 
 
 def main(path_=None, verbose=1):
@@ -42,6 +41,14 @@ def main(path_=None, verbose=1):
         print("Data:")
         print("\n".join(data))
 
+    map_id, regions = find_regions(data)
+
+    print(map_id)
+    cost = cost_method1(map_id, regions)
+    print(f"Solution Day 12 - Part 1 {cost}")
+
+
+def find_regions(data):
     regions = []
     map_id = np.ones(shape=(len(data), len(data[0])), dtype=int) * -1
     print(map_id)
@@ -49,11 +56,7 @@ def main(path_=None, verbose=1):
     for i, j in zip(undefinded_i, undefinded_j):
         if map_id[i, j] == -1:
             identify_region((i, j), data, map_id, regions)
-
-    print(map_id)
-    cost = cost_method1(map_id, regions)
-    print(f"Solution Day 12 - Part 1 {cost}")
-    print("here")
+    return map_id, regions
 
 
 def cost_method1(map_id, regions):
@@ -73,9 +76,6 @@ def measure_fence_and_area(region_coords, map_id):
         within_region = neighbours_ids.count(region_id)
         fence += 4 - within_region
     return fence, len(region_coords)
-
-
-
 
 
 def identify_region(coords, data, map_id, regions):
@@ -100,8 +100,6 @@ def identify_region(coords, data, map_id, regions):
     return
 
 
-
-
 def get_neighbours(coords, mapshape):
     directions = {"U": (-1, 0), "L": (0, -1), "R": (0, 1), "D": (1, 0)}
     neighbours = []
@@ -121,14 +119,6 @@ def within_map(coords, mapshape):
         return False
     else:
         return True
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
