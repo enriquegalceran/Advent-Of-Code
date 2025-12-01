@@ -47,6 +47,24 @@ def main(path_=None, verbose=1):
     cost = cost_method1(map_id, regions)
     print(f"Solution Day 12 - Part 1 {cost}")
 
+    # ---------------------------------------------------------------------------
+    # Part 2
+
+
+
+
+
+
+
+
+
+
+
+
+    print("here")
+
+
+
 
 def find_regions(data):
     regions = []
@@ -110,6 +128,14 @@ def get_neighbours(coords, mapshape):
     return neighbours
 
 
+def get_all_neighbours(coords):
+    directions = {"U": (-1, 0), "L": (0, -1), "R": (0, 1), "D": (1, 0)}
+    neighbours = []
+    for d, c in directions.items():
+        neighbours.append(add_direction(coords, c))
+    return neighbours
+
+
 def add_direction(coord1, direction):
     return coord1[0] + direction[0], coord1[1] + direction[1]
 
@@ -126,4 +152,4 @@ if __name__ == "__main__":
     filename = "day12.txt"
 
     path = os.path.join(datapath, filename)
-    main(path)
+    main(None)
