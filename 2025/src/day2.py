@@ -44,13 +44,17 @@ def main(path_=None, verbose=0, part=1):
             for k in range(int(left), int(right)+1):
                 kstr = str(k)
                 klength = len(kstr)
-                for j in range(1, klength):
+                found_something = False
+                for j in range(1, klength//+1):
                     if klength % j == 0:
-                        repeated = False
-                        for l in range(klength//j - 1):
-                            if kstr[(l*j):((l+1)*j)] != kstr[((l+1)*j):((l+2)*j)]:
-                                break
-
+                        parts = [kstr[x:x+j] for x in range(0, klength, j)]
+                        parts_set = list(set(parts))
+                        if len(parts_set) == 1:
+                            invalid_ids.append(k)
+                            found_something = True
+                    if found_something:
+                        break
+        print(f"Number of invalid elements: {len(invalid_ids)}. Sum of them: {sum(invalid_ids)}")
 
 
     print("pause here")
@@ -61,4 +65,4 @@ if __name__ == "__main__":
     filename = "day2.txt"
 
     path = os.path.join(datapath, filename)
-    main(None, 1, 2)
+    main(path, 1, 2)
