@@ -1,5 +1,7 @@
 import os
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 
 def main(path_=None, verbose=0, part=1):
@@ -93,11 +95,11 @@ def main(path_=None, verbose=0, part=1):
             data_np[r, :] = new_beams
             if verbose > 1:
                 print(data_np)
-        print(data_np)
         total_paths = data_np[-1, :].sum()
         print("part 2: Total paths:", total_paths)
         print("finished")
-
+        plt.imshow(np.log10(data_np))
+        plt.show()
 
 
 if __name__ == "__main__":
@@ -105,4 +107,4 @@ if __name__ == "__main__":
     filename = "day7.txt"
 
     path = os.path.join(datapath, filename)
-    main(path, 2, 2)
+    main(path, 1, 2)
