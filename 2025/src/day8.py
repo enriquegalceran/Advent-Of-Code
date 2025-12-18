@@ -66,54 +66,82 @@ def main(path_=None, verbose=0, part=1):
                     continue
                 dist = get_distance(x1, x2)
                 distances[i, j] = dist
-
+        print("Finished calculating distances")
         current_n_of_networks = 0
         member_of_network = np.ones(n_points, dtype=int) * -1
         pairs_of_connections = []
 
         distance_values, index_distances = np.unique(distances, return_index=True)
 
-        for i_connection in range(total_n_connections):
+        single_network = False
+        i_connection = 0
+        while not single_network:
             dist_i = distance_values[i_connection]
             index_i = index_distances[i_connection]
             connection1, connection2 = get_row_col(index_i, n_points)
             network1 = member_of_network[connection1]
             network2 = member_of_network[connection2]
             if network1 == -1 and network2 == -1:
-                print(f"{i_connection}: new network! {connection1}({data[connection1]}) + {connection2}({data[connection2]}) ({dist_i:.3f}) [{current_n_of_networks}]")
+                if verbose > 0:
+                    print(f"{i_connection}: new network! {connection1}({data[connection1]}) + {connection2}({data[connection2]}) ({dist_i:.3f}) [{current_n_of_networks}]")
                 member_of_network[connection1] = current_n_of_networks
                 member_of_network[connection2] = current_n_of_networks
                 pairs_of_connections.append((data[connection1], data[connection2]))
                 current_n_of_networks += 1
             elif network1 == network2:
-                print(f"{i_connection}: both [{connection1}({data[connection1]}) + {connection2}({data[connection2]})] already connected to network {network1}!")
+                if verbose > 0:
+                    print(f"{i_connection}: both [{connection1}({data[connection1]}) + {connection2}({data[connection2]})] already connected to network {network1}!")
             elif network1 != network2 and network1 != -1 and network2 != -1:
-                print(f"{i_connection}: two networks are merging! {connection1}({data[connection1]})[{network1}] + {connection2}({data[connection2]})[{network2}] Moving [{network2}] into [{network1}]")
+                if verbose > 0:
+                    print(f"{i_connection}: two networks are merging! {connection1}({data[connection1]})[{network1}] + {connection2}({data[connection2]})[{network2}] Moving [{network2}] into [{network1}]")
                 pairs_of_connections.append((data[connection1], data[connection2]))
                 member_of_network[member_of_network == network2] = network1
             else:
                 if network1 == -1:
                     member_of_network[connection1] = network2
                     pairs_of_connections.append((data[connection1], data[connection2]))
-                    print(f"{i_connection}: Network {network2} grew! Adding {connection1}({data[connection1]}) to {connection2}({data[connection2]})  ({dist_i:.3f})")
+                    if verbose > 0:
+                        print(f"{i_connection}: Network {network2} grew! Adding {connection1}({data[connection1]}) to {connection2}({data[connection2]})  ({dist_i:.3f})")
                 elif network2 == -1:
                     member_of_network[connection2] = network1
                     pairs_of_connections.append((data[connection1], data[connection2]))
-                    print(f"{i_connection}: Network {network1} grew! Adding {connection2}({data[connection2]}) to {connection1}({data[connection1]})  ({dist_i:.3f})")
+                    if verbose > 0:
+                        print(f"{i_connection}: Network {network1} grew! Adding {connection2}({data[connection2]}) to {connection1}({data[connection1]})  ({dist_i:.3f})")
                 else:
                     raise ValueError("Should not be here neither!")
+            if i_connection == total_n_connections:
+                print("\n\n\nAll connections for part 1 are made!")
+                networks, idx_in_network, n_in_network = np.unique(member_of_network[member_of_network >= 0],
+                                                                   return_counts=True, return_index=True)
+                not_connected = (member_of_network == -1).sum()
+                n_in_network, networks, idx_in_network = zip(
+                    *sorted(zip(n_in_network, networks, idx_in_network), reverse=True))
 
-        print("All connections made!")
-        networks, idx_in_network, n_in_network = np.unique(member_of_network[member_of_network >= 0], return_counts=True, return_index=True)
+                print("Name of networks:", networks)
+                print("Number of elements in each network:", n_in_network)
+                print("Not connected:", not_connected)
+                print("Solution part1:", n_in_network[0] * n_in_network[1] * n_in_network[2], "\n\n\n")
+
+            network_unique = np.unique(member_of_network)
+            if network_unique.size == 1:
+                single_network = True
+            i_connection += 1
+
+
+        networks, idx_in_network, n_in_network = np.unique(member_of_network[member_of_network >= 0],
+                                                           return_counts=True, return_index=True)
         not_connected = (member_of_network == -1).sum()
-        n_in_network, networks, idx_in_network = zip(*sorted(zip(n_in_network, networks, idx_in_network), reverse=True))
+        n_in_network, networks, idx_in_network = zip(
+            *sorted(zip(n_in_network, networks, idx_in_network), reverse=True))
+        n_networks = len(networks)
 
         print("Name of networks:", networks)
         print("Number of elements in each network:", n_in_network)
         print("Not connected:", not_connected)
-        print("Solution part1:", n_in_network[0]*n_in_network[1]*n_in_network[2])
-
-        n_networks = len(networks)
+        print("Last pair:", connection1, connection2)
+        print("Coordinates las pair:", data[connection1], data[connection2])
+        print("Solution part2:", data[connection1][0] * data[connection2][0])
+        print(f"Total cable distance: {sum([get_distance(*_) for _ in pairs_of_connections]):,.3f}")
 
         xs = np.array([_[0] for _ in data])
         ys = np.array([_[1] for _ in data])
@@ -136,7 +164,6 @@ def main(path_=None, verbose=0, part=1):
         for i_n, n in enumerate(networks):
             color_n = cmap(i_n/n_networks)
             mask_current_network = member_of_network == n
-            idx_current_pair = np.where(pairs_of_connections_network == n)[0]
             mask_current_pair = pairs_of_connections_network == n
             xs_n = xs[mask_current_network]
             ys_n = ys[mask_current_network]
@@ -160,4 +187,4 @@ if __name__ == "__main__":
     filename = "day8.txt"
 
     path = os.path.join(datapath, filename)
-    main(None, 1, 1)
+    main(path, 1, 1)
